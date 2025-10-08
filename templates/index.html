@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Donate Company</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #121212;
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+        button {
+            background-color: #0088cc;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>🔥 Поддержи блогера</h2>
+    <p>Открой бота, чтобы сделать донат</p>
+    <button id="open-bot">Открыть бота</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // во весь экран
+
+        // Достаём параметры
+        const user = tg.initDataUnsafe.user;
+        const ref = tg.initDataUnsafe.start_param;
+
+        console.log("User:", user);
+        console.log("Ref:", ref);
+
+        // Отправляем на сервер
+        fetch("/save_ref", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                tg_id: user?.id,
+                ref: ref
+            })
+        });
+
+        // Кнопка "Открыть бота"
+        document.getElementById("open-bot").onclick = () => {
+            const botUsername = "donate_company_bot"; // поменяй на своего
+            window.location.href = `https://t.me/${botUsername}?start`;
+        };
+    </script>
+</body>
+</html>
