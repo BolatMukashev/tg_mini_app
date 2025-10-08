@@ -1,0 +1,3 @@
+YDB_ENDPOINT = None
+YDB_PATH = None
+YDB_TOKEN = None
