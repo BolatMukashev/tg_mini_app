@@ -3,8 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-import json
-from ydb_connect import save_to_cache
+from ydb_connect import save_to_cache, get_id_by_ref
 
 app = FastAPI()
 
@@ -27,10 +26,16 @@ async def save_ref(request: Request):
     data = await request.json()
     tg_id = data.get("tg_id")
     ref = data.get("ref")
-    await save_to_cache(tg_id, "referal", ref)
+    ref_id = await get_id_by_ref(ref)
+    if ref_id:
+        await save_to_cache(tg_id, "referal", int(ref_id))
     print(f"📥 Новый переход: user_id={tg_id}, ref={ref}")
     return {"status": "ok"}
 
 @app.get("/favicon.ico")
 async def favicon():
     return RedirectResponse(url="/static/favicon.ico")
+
+# uvicorn main:app --reload --port 8000
+# ngrok http 8000
+# 
