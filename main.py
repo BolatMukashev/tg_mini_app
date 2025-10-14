@@ -2,6 +2,7 @@ import sys, os
 sys.path.append(os.path.dirname(__file__))
 import uvicorn
 from app.app import app
+from app.logger import logger
 
 # uvicorn main:app --reload --port 8000
 # ngrok http 8080

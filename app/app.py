@@ -4,8 +4,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.ydb_connect import save_to_cache, get_id_by_ref
+from asgi_correlation_id import CorrelationIdMiddleware
+from app.log_middleware import LogMiddleware
+from app.logger import logger
+
 
 app = FastAPI()
+
+app.add_middleware(LogMiddleware)
+app.add_middleware(CorrelationIdMiddleware)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -21,6 +28,7 @@ async def mini_app(request: Request):
     """
     return templates.TemplateResponse("index.html", {"request": request})
 
+
 @app.post("/save_ref")
 async def save_ref(request: Request):
     data = await request.json()
@@ -30,9 +38,15 @@ async def save_ref(request: Request):
         ref_id = await get_id_by_ref(ref)
         if ref_id:
             await save_to_cache(tg_id, "referal", int(ref_id))
-    print(f"📥 Новый переход: user_id={tg_id}, ref={ref}")
+    logger.info(f"📥 Новый переход: user_id={tg_id}, ref={ref}")
     return {"status": "ok"}
+
 
 @app.get("/favicon.ico")
 async def favicon():
     return RedirectResponse(url="/static/favicon.ico")
+
+
+@app.get("/error")
+def read_error():
+    raise Exception("Error")
