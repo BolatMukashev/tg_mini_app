@@ -2,7 +2,7 @@ import ydb
 import ydb.aio
 import asyncio
 from typing import Optional, Dict, Any
-from config import YDB_ENDPOINT, YDB_PATH, YDB_TOKEN
+from app.config import YDB_ENDPOINT, YDB_PATH, YDB_TOKEN
 from dataclasses import dataclass
 
 
@@ -22,7 +22,7 @@ class YDBClient:
         self.token = token
         self.driver = None
         self.pool = None
-        self.credentials = ydb.iam.MetadataUrlCredentials() #ydb.AccessTokenCredentials(self.token)
+        self.credentials = ydb.iam.MetadataUrlCredentials() #ydb.AccessTokenCredentials(self.token) 
     
     async def __aenter__(self):
         """Async context manager entry"""
