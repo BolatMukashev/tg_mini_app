@@ -38,14 +38,14 @@ async def save_ref(request: Request):
     if ref:
         ref_id = await get_id_by_ref(ref)
         if ref_id is None:
-            logger.info(f"📥 Пользователь не найден: ref={ref}")
+            logger.info(f"📥 Пользователь не найден: ref={ref}, ref_id={ref_id}")
         else:
             try:
                 await save_to_cache(tg_id, "referal", int(ref_id))
                 logger.info(f"📥 Новый переход: user_id={tg_id}, ref={ref}")
             except Exception as e:
                 logger.error(f"📥 Ошибка сохранения в кэш: {e}")
-                
+
     return {"status": "ok"}
 
 

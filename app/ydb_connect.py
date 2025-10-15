@@ -4,6 +4,7 @@ import asyncio
 from typing import Optional, Dict, Any
 from app.config import YDB_ENDPOINT, YDB_PATH, YDB_TOKEN
 from dataclasses import dataclass
+from app.logger import logger
 
 
 # yc iam create-token   (12 часов действует)
@@ -50,13 +51,13 @@ class YDBClient:
         self.driver = ydb.aio.Driver(driver_config)
         
         try:
-            await self.driver.wait(timeout=5)
+            logger.info("🕓 Подключение к YDB...")
+            await self.driver.wait(timeout=15)
             self.pool = ydb.aio.QuerySessionPool(self.driver)
-            print("Successfully connected to YDB")
+            logger.info("✅ Подключение к YDB установлено")
         except TimeoutError:
-            print("Connect failed to YDB")
-            print("Last reported errors by discovery:")
-            print(self.driver.discovery_debug_details())
+            logger.error("Connect failed to YDB")
+            logger.error(self.driver.discovery_debug_details())
             await self.driver.stop()
             self.driver = None
             raise
@@ -72,7 +73,7 @@ class YDBClient:
         if self.driver:
             await self.driver.stop()
             self.driver = None
-            print("YDB connection closed")
+            logger.info("YDB connection closed")
     
     def _ensure_connected(self):
         """
@@ -97,13 +98,13 @@ class YDBClient:
         Создание таблицы с заданной схемой (если она не существует)
         """
         self._ensure_connected()
-        print(f"\nChecking if table {table_name} exists...")
+        logger.info(f"\nChecking if table {table_name} exists...")
         try:
             await self.pool.execute_with_retries(schema)
-            print(f"Table {table_name} created successfully!")
+            logger.info(f"Table {table_name} created successfully!")
         except ydb.GenericError as e:
             if "path exist" in str(e):
-                print(f"Table {table_name} already exists, skipping creation.")
+                logger.info(f"Table {table_name} already exists, skipping creation.")
             else:
                 raise e
     
