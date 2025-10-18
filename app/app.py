@@ -7,6 +7,7 @@ from app.ydb_connect import save_to_cache, get_id_by_ref
 from asgi_correlation_id import CorrelationIdMiddleware
 from app.log_middleware import LogMiddleware
 from app.logger import logger
+from languages.text import TEXTS
 
 
 app = FastAPI()
@@ -20,13 +21,23 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/", response_class=HTMLResponse)
-async def mini_app(request: Request):
+async def mini_app(request: Request, lang: str = "en"):
     """
     Telegram Mini App открывает этот URL.
-    Telegram автоматически передаёт initData через Telegram.WebApp.initData.
-    start_param можно достать из Telegram.WebApp.initDataUnsafe.start_param
     """
-    return templates.TemplateResponse("index.html", {"request": request})
+
+    # Если язык неизвестен — по умолчанию русский
+    text = TEXTS.get(lang, TEXTS["ru"])
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "text": text,
+            "lang": lang
+        }
+    )
+
 
 
 @app.post("/save_ref")
